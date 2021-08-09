@@ -66,7 +66,8 @@ function getQaIndex(userId, remove) {
     qaIndex = -1;
     for (index = 0; index < users.length; index++) {
         if (users[index].userId == userId) {
-            console.log(`user in users found. index= ${index}`);
+            qaIndex = users[index].qaIndex;
+            console.log(`user in users found. index= ${index}, qaIndex=${qaIndex}`);
             if (remove == true) {
                 users.splice(index, 1);
             }
@@ -190,24 +191,25 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                         type: "text",
                         text: "「問題出して」とか言ってみて"
                     }));
-                }
-                if (isCorrect(event.source.userId, event.message.text)) {
-                    events_processed.push(bot.replyMessage(event.replyToken, {
-                        type: "text",
-                        text: "$ 正解です!!",
-                        emojis: [
-                            {
-                                index: 0,
-                                productId: "5ac1bfd5040ab15980c9b435",
-                                emojiId: "068"
-                            }
-                        ]
-                    }));
                 } else {
-                    events_processed.push(bot.replyMessage(event.replyToken, {
-                        type: "text",
-                        text: "あれだけ言ったのに、まだわからんのかー!!"
-                    }));
+                    if (isCorrect(event.source.userId, event.message.text)) {
+                        events_processed.push(bot.replyMessage(event.replyToken, {
+                            type: "text",
+                            text: "$ 正解です!!",
+                            emojis: [
+                                {
+                                    index: 0,
+                                    productId: "5ac1bfd5040ab15980c9b435",
+                                    emojiId: "068"
+                                }
+                            ]
+                        }));
+                    } else {
+                        events_processed.push(bot.replyMessage(event.replyToken, {
+                            type: "text",
+                            text: "あれだけ言ったのに、まだわからんのかー!!"
+                        }));
+                    }
                 }
             }
         }
