@@ -32,7 +32,7 @@ const questions = [
 ];
 const correctAnswers = ["1000", "1000", "10", "100", "10", "0.001", "10", "100", "10", "0.1"];
 
-let currentIndex = -1;
+let users = [];
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -56,23 +56,31 @@ function isQuestion(text) {
     return false;
 }
 
-function getQuestion() {
+function getQuestionIndex() {
     let rand = getRandomInt(0, questions.length);
-    currentIndex = rand;
-    return questions[rand];
+    return rand;
 }
 
-function isCorrect(text) {
-    if (currentIndex < 0) {
+function isCorrect(userId, text) {
+    let index = 0;
+    qaIndex = -1;
+    for (user in users) {
+        if (user.userId == userId) {
+            users.splice(index, 1)
+            qaIndex = user.qaIndex;
+            break;
+        }
+        index = index + 1
+    }
+    if (qaIndex < 0) {
         return false;
     }
-    const correctAnswer = correctAnswers[currentIndex];
+    const correctAnswer = correctAnswers[qaIndex];
     if (text == correctAnswer) {
         return true;
     } else {
         return false;
     }
-    currentIndex = -1;
 }
 
 // -----------------------------------------------------------------------------
@@ -88,9 +96,14 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
     req.body.events.forEach((event) => {
         // この処理の対象をイベントタイプがメッセージで、かつ、テキストタイプだった場合に限定。
         if (event.type == "message" && event.message.type == "text") {
-            // ユーザーからのテキストメッセージが「こんにちは」だった場合のみ反応。
             if (isQuestion(event.message.text)) {
-                let t = getQuestion();
+                let i = getQuestionIndex();
+                let t = questions[i];
+                let elem = {
+                    userId: event.source.userId,
+                    qaIndex: i
+                }
+                users.push(elem)
                 events_processed.push(bot.replyMessage(event.replyToken, {
                     type: "text",
                     text: t,
@@ -172,7 +185,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                         text: "「問題出して」とか言ってみて"
                     }));
                 }
-                if (isCorrect(event.message.text)) {
+                if (isCorrect(event.source.userId, event.message.text)) {
                     events_processed.push(bot.replyMessage(event.replyToken, {
                         type: "text",
                         text: "$ 正解です!!",
