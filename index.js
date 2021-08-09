@@ -62,11 +62,10 @@ function getQuestionIndex() {
 }
 
 function getQaIndex(userId) {
-    let index = 0;
-    for (index = 0; index < users.length; index++) {
-        if (users[index].userId == userId) {
-            qaIndex = users[index].qaIndex;
-            console.log(`user in users found. index= ${index}, qaIndex=${qaIndex}`);
+    for (user in users) {
+        if (user.userId == userId) {
+            qaIndex = user.qaIndex;
+            console.log(`user in users found. qaIndex=${qaIndex}`);
             return qaIndex;
         }
     }
@@ -74,8 +73,10 @@ function getQaIndex(userId) {
 }
 
 function setQaIndex(userId, index) {
+    console.log(`setQaIndex: index= ${index}`);
     for (user in users) {
         if (user.userId == userId) {
+            console.log(`setQaIndex: found: index= ${index}`);
             user.qaIndex = index;
             return;
         }
@@ -85,6 +86,7 @@ function setQaIndex(userId, index) {
         qaIndex: index,
         continuousCorrect: 0
     }
+    console.log(`setQaIndex: create: index= ${index}`);
     users.push(elem);
 }
 
