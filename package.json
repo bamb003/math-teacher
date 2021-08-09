@@ -1,0 +1,15 @@
+{
+  "name": "math-teacher",
+  "version": "1.0.0",
+  "description": "line math teacher",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "takemori",
+  "license": "ISC",
+  "dependencies": {
+    "@line/bot-sdk": "^7.3.0",
+    "express": "^4.17.1"
+  }
+}
