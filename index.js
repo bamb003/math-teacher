@@ -62,12 +62,9 @@ function getRandomQuestionIndex() {
 }
 
 function getQaIndex(userId) {
-    console.log(`getQaIndex: userId=${userId}`);
     for (user of users) {
-        console.log(`user: ${user}, userId: ${user.userId}`)
         if (user.userId == userId) {
             qaIndex = user.qaIndex;
-            console.log(`user in users found. qaIndex=${qaIndex}`);
             return qaIndex;
         }
     }
@@ -75,11 +72,8 @@ function getQaIndex(userId) {
 }
 
 function setQaIndex(userId, index) {
-    console.log(`setQaIndex: index= ${index}, userId=${userId}`);
     for (user of users) {
-        console.log(`user: ${user}`)
         if (user.userId == userId) {
-            console.log(`setQaIndex: found: index= ${index}`);
             user.qaIndex = index;
             return;
         }
@@ -89,10 +83,7 @@ function setQaIndex(userId, index) {
         qaIndex: index,
         continuousCorrect: 0
     }
-    console.log(`setQaIndex: create: index= ${index}, userId=${userId}`);
-    console.log(`elem: ${elem}`);
     users.push(elem);
-    console.log(`users: ${users}`);
 }
 
 function getContinuousCorrect(userId) {
@@ -274,7 +265,10 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                         }));
                         setTimeout(() => {
                             let c = getContinuousCorrect(event.source.userId);
-                            if (c >= 2) {
+                            if (c == 10) {
+                                sendMessage(`10問連続正解です! おめでとう!!! 今日はゲームできるかも(お母さんに聞いてみてね)`, events_processed, event);
+                                return;
+                            } else if (c >= 2) {
                                 sendMessage(`${c}問連続正解です! それでは…`, events_processed, event);
                             } else {
                                 sendMessage(`やりますね、それでは…`, events_processed, event);
