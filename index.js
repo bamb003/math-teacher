@@ -96,14 +96,6 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                                 type: "action",
                                 action: {
                                     type: "message",
-                                    label: "1",
-                                    text: "1"
-                                }
-                            },
-                            {
-                                type: "action",
-                                action: {
-                                    type: "message",
                                     label: "10",
                                     text: "10"
                                 }
@@ -136,7 +128,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
             } else if (event.message.text == "あれ") {
                 events_processed.push(bot.replyMessage(event.replyToken, {
                     type: "text",
-                    text: "おっけー $",
+                    text: "$ ok!",
                     emojis: [
                         {
                             index: 0,
