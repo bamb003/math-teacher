@@ -64,7 +64,7 @@ function getRandomQuestionIndex() {
 function getQaIndex(userId) {
     console.log(`getQaIndex: userId=${userId}`);
     for (user in users) {
-        console.log(`user: ${user}`)
+        console.log(`user: ${user}, userId: ${user.userId}`)
         if (user.userId == userId) {
             qaIndex = user.qaIndex;
             console.log(`user in users found. qaIndex=${qaIndex}`);
