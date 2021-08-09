@@ -61,17 +61,23 @@ function getQuestionIndex() {
     return rand;
 }
 
-function isCorrect(userId, text) {
+function getQaIndex(userId, remove) {
     let index = 0;
     qaIndex = -1;
     for (user in users) {
         if (user.userId == userId) {
-            users.splice(index, 1)
-            qaIndex = user.qaIndex;
-            break;
+            if (remove == true) {
+                users.splice(index, 1);
+            }
+            return qaIndex;
         }
-        index = index + 1
+        index = index + 1;
     }
+    return -1;
+}
+
+function isCorrect(userId, text) {
+    let qaIndex = getQaIndex(userId, true)
     if (qaIndex < 0) {
         return false;
     }
@@ -179,7 +185,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                     ]
                 }));
             } else {
-                if (currentIndex == -1) {
+                if (getQaIndex(event.source.userId, false) < 0) {
                     events_processed.push(bot.replyMessage(event.replyToken, {
                         type: "text",
                         text: "「問題出して」とか言ってみて"
@@ -198,7 +204,6 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                         ]
                     }));
                 } else {
-                    currentIndex = -1;
                     events_processed.push(bot.replyMessage(event.replyToken, {
                         type: "text",
                         text: "あれだけ言ったのに、まだわからんのかー!!"
