@@ -230,7 +230,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                     if (isCorrect(event.source.userId, event.message.text)) {
                         events_processed.push(bot.replyMessage(event.replyToken, {
                             type: "text",
-                            text: "$ 正解です! それでは次の問題!!",
+                            text: "$ 正解です!",
                             emojis: [
                                 {
                                     index: 0,
@@ -239,7 +239,9 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                                 }
                             ]
                         }));
-                        //                        sendMessage("それでは…", events_processed, event);
+                        sleep(1);
+                        sendMessage("それでは…", events_processed, event);
+                        sleep(1);
                         sendQuestion(events_processed, event);
                     } else {
                         events_processed.push(bot.replyMessage(event.replyToken, {
