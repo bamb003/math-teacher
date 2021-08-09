@@ -270,7 +270,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                             if (c >= 2) {
                                 sendMessage(`${c}問連続正解です! それでは…`, events_processed, event);
                             } else {
-                                sendMessage(`正解です! それでは…`, events_processed, event);
+                                sendMessage(`やりますね、それでは…`, events_processed, event);
                             }
                             setTimeout(() => {
                                 sendQuestion(events_processed, event);
