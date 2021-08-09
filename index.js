@@ -64,14 +64,14 @@ function getQuestionIndex() {
 function getQaIndex(userId, remove) {
     let index = 0;
     qaIndex = -1;
-    for (user in users) {
-        if (user.userId == userId) {
+    for (index = 0; index < users.length; index++) {
+        if (users[index].userId == userId) {
+            print(`user in users found. index= ${index}`);
             if (remove == true) {
                 users.splice(index, 1);
             }
             return qaIndex;
         }
-        index = index + 1;
     }
     return -1;
 }
