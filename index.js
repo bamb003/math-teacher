@@ -90,6 +90,72 @@ function isCorrect(userId, text) {
     }
 }
 
+function sendOneQuestion(event) {
+    let i = getQuestionIndex();
+    let t = questions[i];
+    let elem = {
+        userId: event.source.userId,
+        qaIndex: i
+    }
+    users.push(elem)
+    events_processed.push(bot.replyMessage(event.replyToken, {
+        type: "text",
+        text: t,
+        quickReply: { // ②
+            items: [
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "0.001",
+                        text: "0.001"
+                    }
+                },
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "0.01",
+                        text: "0.01"
+                    }
+                },
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "0.1",
+                        text: "0.1"
+                    }
+                },
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "10",
+                        text: "10"
+                    }
+                },
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "100",
+                        text: "100"
+                    }
+                },
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "1000",
+                        text: "1000"
+                    }
+                },
+            ]
+        }
+    }));
+}
+
 // -----------------------------------------------------------------------------
 // ルーター設定
 server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
@@ -104,74 +170,12 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
         // この処理の対象をイベントタイプがメッセージで、かつ、テキストタイプだった場合に限定。
         if (event.type == "message" && event.message.type == "text") {
             if (isQuestion(event.message.text)) {
-                let i = getQuestionIndex();
-                let t = questions[i];
-                let elem = {
-                    userId: event.source.userId,
-                    qaIndex: i
-                }
-                users.push(elem)
-                events_processed.push(bot.replyMessage(event.replyToken, {
-                    type: "text",
-                    text: t,
-                    quickReply: { // ②
-                        items: [
-                            {
-                                type: "action",
-                                action: {
-                                    type: "message",
-                                    label: "0.001",
-                                    text: "0.001"
-                                }
-                            },
-                            {
-                                type: "action",
-                                action: {
-                                    type: "message",
-                                    label: "0.01",
-                                    text: "0.01"
-                                }
-                            },
-                            {
-                                type: "action",
-                                action: {
-                                    type: "message",
-                                    label: "0.1",
-                                    text: "0.1"
-                                }
-                            },
-                            {
-                                type: "action",
-                                action: {
-                                    type: "message",
-                                    label: "10",
-                                    text: "10"
-                                }
-                            },
-                            {
-                                type: "action",
-                                action: {
-                                    type: "message",
-                                    label: "100",
-                                    text: "100"
-                                }
-                            },
-                            {
-                                type: "action",
-                                action: {
-                                    type: "message",
-                                    label: "1000",
-                                    text: "1000"
-                                }
-                            },
-                        ]
-                    }
-                }));
+                sendOneQuestion(event);
             } else if (event.message.text == "こんにちは") {
                 // replyMessage()で返信し、そのプロミスをevents_processedに追加。
                 events_processed.push(bot.replyMessage(event.replyToken, {
                     type: "text",
-                    text: "これはこれは"
+                    text: "はいこんにちは、今日も勉強がんばりましょう!"
                 }));
             } else if (event.message.text == "あれ") {
                 events_processed.push(bot.replyMessage(event.replyToken, {
@@ -204,6 +208,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                                 }
                             ]
                         }));
+                        sendOneQuestion(event);
                     } else {
                         events_processed.push(bot.replyMessage(event.replyToken, {
                             type: "text",
