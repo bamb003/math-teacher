@@ -27,6 +27,7 @@ function getRandomInt(min, max) {
 }
 
 function isQuestion(text) {
+    return true;
     if (text.includes("問題")) {
         return true;
     }
