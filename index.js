@@ -27,16 +27,16 @@ function getRandomInt(min, max) {
 }
 
 function isQuestion(text) {
-    if (text.match(/問題/)) {
+    if (text.includes("問題")) {
         return true;
     }
-    if (text.match(/もんだい/)) {
+    if (text.includes("もんだい")) {
         return true;
     }
-    if (text.match(/次/)) {
+    if (text.includes("次")) {
         return true;
     }
-    if (text.match(/つぎ/)) {
+    if (text.includes("つぎ")) {
         return true;
     }
     return false;
