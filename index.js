@@ -65,13 +65,45 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                 let t = getQuestion();
                 events_processed.push(bot.replyMessage(event.replyToken, {
                     type: "text",
-                    text: t
+                    text: t,
+                    quickReply: { // ②
+                        items: [
+                            {
+                                type: "action", // ③
+                                action: {
+                                    type: "message",
+                                    label: "Sushi",
+                                    text: "Sushi"
+                                }
+                            },
+                            {
+                                type: "action",
+                                action: {
+                                    type: "message",
+                                    label: "1000",
+                                    text: "1000"
+                                }
+                            }
+                        ]
+                    }
                 }));
             } else if (event.message.text == "こんにちは") {
                 // replyMessage()で返信し、そのプロミスをevents_processedに追加。
                 events_processed.push(bot.replyMessage(event.replyToken, {
                     type: "text",
                     text: "これはこれは"
+                }));
+            } else if (event.message.text == "あれ") {
+                events_processed.push(bot.replyMessage(event.replyToken, {
+                    type: "text",
+                    text: "これはこれは",
+                    emojis: [
+                        {
+                            index: 0,
+                            productId: "5ac1bfd5040ab15980c9b435",
+                            emojiId: "068"
+                        }
+                    ]
                 }));
             } else {
                 events_processed.push(bot.replyMessage(event.replyToken, {
