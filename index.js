@@ -18,6 +18,35 @@ server.listen(process.env.PORT || 3000);
 // APIコールのためのクライアントインスタンスを作成
 const bot = new line.Client(line_config);
 
+const questions = ["1kmは何m?", "1kgは何g?", "1cmは何mm?", "1mは何cm?", "1cmは何mm?", "1mは何km?"];
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
+
+function isQuestion(text) {
+    if (text.match(/問題/)) {
+        return true;
+    }
+    if (text.match(/もんだい/)) {
+        return true;
+    }
+    if (text.match(/次/)) {
+        return true;
+    }
+    if (text.match(/つぎ/)) {
+        return true;
+    }
+    return false;
+}
+
+function getQuestion() {
+    let rand = getRandomInt(0, questions.count);
+    return questions[rand];
+}
+
 // -----------------------------------------------------------------------------
 // ルーター設定
 server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
@@ -32,18 +61,23 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
         // この処理の対象をイベントタイプがメッセージで、かつ、テキストタイプだった場合に限定。
         if (event.type == "message" && event.message.type == "text") {
             // ユーザーからのテキストメッセージが「こんにちは」だった場合のみ反応。
+            if (isQuestion(event.message.text)) {
+                let t = getQuestion();
+                events_processed.push(bot.replyMessage(event.replyToken, {
+                    type: "text",
+                    text: t
+                }));
+            }
             if (event.message.text == "こんにちは") {
                 // replyMessage()で返信し、そのプロミスをevents_processedに追加。
                 events_processed.push(bot.replyMessage(event.replyToken, {
                     type: "text",
                     text: "これはこれは"
                 }));
-            }
-            if (event.message.text == "もんだいだして") {
-                // replyMessage()で返信し、そのプロミスをevents_processedに追加。
+            } else {
                 events_processed.push(bot.replyMessage(event.replyToken, {
                     type: "text",
-                    text: "1kmは何m?"
+                    text: "あれだけ言ったのに、まだわからんのかー!!"
                 }));
             }
         }
