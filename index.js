@@ -85,7 +85,7 @@ function setQaIndex(userId, index) {
         }
     }
     let elem = {
-        userId: event.source.userId,
+        userId: userId,
         qaIndex: i
     }
     users.push(elem);
