@@ -61,16 +61,12 @@ function getQuestionIndex() {
     return rand;
 }
 
-function getQaIndex(userId, remove) {
+function getQaIndex(userId) {
     let index = 0;
-    qaIndex = -1;
     for (index = 0; index < users.length; index++) {
         if (users[index].userId == userId) {
             qaIndex = users[index].qaIndex;
             console.log(`user in users found. index= ${index}, qaIndex=${qaIndex}`);
-            if (remove == true) {
-                users.splice(index, 1);
-            }
             return qaIndex;
         }
     }
@@ -92,6 +88,24 @@ function setQaIndex(userId, index) {
     users.push(elem);
 }
 
+function addContinuousCorrect(userId) {
+    for (user in users) {
+        if (user.userId == userId) {
+            user.continuousCorrect = user.continuousCorrect + 1;
+            return;
+        }
+    }
+}
+
+function setContinuousCorrect(userId, count) {
+    for (user in users) {
+        if (user.userId == userId) {
+            user.continuousCorrect = count;
+            return;
+        }
+    }
+}
+
 function isCorrect(userId, text) {
     let qaIndex = getQaIndex(userId)
     if (qaIndex < 0) {
@@ -99,10 +113,10 @@ function isCorrect(userId, text) {
     }
     const correctAnswer = correctAnswers[qaIndex];
     if (text == correctAnswer) {
-        users[qaIndex].continuousCorrect = users[qaIndex].continuousCorrect + 1;
+        addContinuousCorrect(userId);
         return true;
     } else {
-        users[qaIndex].continuousCorrect = 0;
+        setContinuousCorrect(userId, 0);
         return false;
     }
 }
@@ -245,7 +259,11 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                         setTimeout(() => {
                             let i = getQaIndex(event.source.userId);
                             let c = users[i].continuousCorrect;
-                            sendMessage(`${c}問連続正解です! それでは…`, events_processed, event);
+                            if (c >= 2) {
+                                sendMessage(`${c}問連続正解です! それでは…`, events_processed, event);
+                            } else {
+                                sendMessage(`正解です! それでは…`, events_processed, event);
+                            }
                             setTimeout(() => {
                                 sendQuestion(events_processed, event);
                             }, 1000);
