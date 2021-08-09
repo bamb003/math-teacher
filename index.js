@@ -98,8 +98,10 @@ function isCorrect(userId, text) {
     }
     const correctAnswer = correctAnswers[qaIndex];
     if (text == correctAnswer) {
+        users[qaIndex].continuousCorrect = users[qaIndex].continuousCorrect + 1;
         return true;
     } else {
+        users[qaIndex].continuousCorrect = 0;
         return false;
     }
 }
@@ -239,10 +241,12 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                                 }
                             ]
                         }));
-                        sleep(1);
-                        sendMessage("それでは…", events_processed, event);
-                        sleep(1);
-                        sendQuestion(events_processed, event);
+                        setTimeout(() => {
+                            sendMessage("それでは…", events_processed, event);
+                            setTimeout(() => {
+                                sendQuestion(events_processed, event);
+                            }, 1000);
+                        }, 1000);
                     } else {
                         events_processed.push(bot.replyMessage(event.replyToken, {
                             type: "text",
