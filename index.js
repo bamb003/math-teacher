@@ -87,7 +87,7 @@ function setQaIndex(userId, index) {
         qaIndex: index,
         continuousCorrect: 0
     }
-    console.log(`setQaIndex: create: index= ${index}`);
+    console.log(`setQaIndex: create: index= ${index}, userId=${userId}`);
     users.push(elem);
 }
 
