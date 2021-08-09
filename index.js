@@ -86,7 +86,8 @@ function setQaIndex(userId, index) {
     }
     let elem = {
         userId: userId,
-        qaIndex: index
+        qaIndex: index,
+        continuousCorrect: 0
     }
     users.push(elem);
 }
@@ -242,7 +243,9 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                             ]
                         }));
                         setTimeout(() => {
-                            sendMessage("それでは…", events_processed, event);
+                            let i = getQaIndex(event.source.userId);
+                            let c = users[i].continuousCorrect;
+                            sendMessage(`${c}問連続正解です! それでは…`, events_processed, event);
                             setTimeout(() => {
                                 sendQuestion(events_processed, event);
                             }, 1000);
