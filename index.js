@@ -18,8 +18,19 @@ server.listen(process.env.PORT || 3000);
 // APIコールのためのクライアントインスタンスを作成
 const bot = new line.Client(line_config);
 
-const questions = ["1kmは何m?", "1kgは何g?", "1cmは何mm?", "1mは何cm?", "1cmは何mm?", "1mは何km?"];
-const correctAnswers = ["1000", "1000", "10", "100", "10", "0.001"];
+const questions = [
+    "1kmは何m?",
+    "1kgは何g?",
+    "1cmは何mm?",
+    "1mは何cm?",
+    "1cmは何mm?",
+    "1mは何km?",
+    "0.1mは何cm?",
+    "0.1kmは何m?",
+    "0.01kmは何m?",
+    "1mmは何cm?"
+];
+const correctAnswers = ["1000", "1000", "10", "100", "10", "0.001", "10", "100", "10", "0.1"];
 
 let currentIndex = -1;
 
@@ -155,6 +166,12 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                     ]
                 }));
             } else {
+                if (currentIndex == -1) {
+                    events_processed.push(bot.replyMessage(event.replyToken, {
+                        type: "text",
+                        text: "「問題出して」とか言ってみて"
+                    }));
+                }
                 if (isCorrect(event.message.text)) {
                     events_processed.push(bot.replyMessage(event.replyToken, {
                         type: "text",
