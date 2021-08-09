@@ -66,7 +66,7 @@ function getQaIndex(userId, remove) {
     qaIndex = -1;
     for (index = 0; index < users.length; index++) {
         if (users[index].userId == userId) {
-            print(`user in users found. index= ${index}`);
+            console.log(`user in users found. index= ${index}`);
             if (remove == true) {
                 users.splice(index, 1);
             }
