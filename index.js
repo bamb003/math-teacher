@@ -88,6 +88,15 @@ function setQaIndex(userId, index) {
     users.push(elem);
 }
 
+function getContinuousCorrect(userId) {
+    for (user in users) {
+        if (user.userId == userId) {
+            return user.continuousCorrect;
+        }
+    }
+    return -1;
+}
+
 function addContinuousCorrect(userId) {
     for (user in users) {
         if (user.userId == userId) {
@@ -257,8 +266,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                             ]
                         }));
                         setTimeout(() => {
-                            let i = getQaIndex(event.source.userId);
-                            let c = users[i].continuousCorrect;
+                            let c = getContinuousConnect(event.source.userId);
                             if (c >= 2) {
                                 sendMessage(`${c}問連続正解です! それでは…`, events_processed, event);
                             } else {
