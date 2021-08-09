@@ -27,7 +27,6 @@ function getRandomInt(min, max) {
 }
 
 function isQuestion(text) {
-    return true;
     if (text.includes("問題")) {
         return true;
     }
@@ -44,7 +43,7 @@ function isQuestion(text) {
 }
 
 function getQuestion() {
-    let rand = getRandomInt(0, questions.count);
+    let rand = getRandomInt(0, questions.length);
     return questions[rand];
 }
 
