@@ -77,8 +77,22 @@ function getQaIndex(userId, remove) {
     return -1;
 }
 
+function setQaIndex(userId, index) {
+    for (user in users) {
+        if (user.userId == userId) {
+            user.qaIndex = i;
+            return;
+        }
+    }
+    let elem = {
+        userId: event.source.userId,
+        qaIndex: i
+    }
+    users.push(elem);
+}
+
 function isCorrect(userId, text) {
-    let qaIndex = getQaIndex(userId, true)
+    let qaIndex = getQaIndex(userId)
     if (qaIndex < 0) {
         return false;
     }
@@ -90,14 +104,73 @@ function isCorrect(userId, text) {
     }
 }
 
-function sendOneQuestion(events_processed, event) {
+function sendQuestion(events_processed, event) {
     let i = getQuestionIndex();
     let t = questions[i];
-    let elem = {
-        userId: event.source.userId,
-        qaIndex: i
-    }
-    users.push(elem)
+    setQaIndex(event.source.userId, i);
+    events_processed.push(bot.pushMessage(event.source.userId, {
+        type: "text",
+        text: t,
+        quickReply: { // ②
+            items: [
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "0.001",
+                        text: "0.001"
+                    }
+                },
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "0.01",
+                        text: "0.01"
+                    }
+                },
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "0.1",
+                        text: "0.1"
+                    }
+                },
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "10",
+                        text: "10"
+                    }
+                },
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "100",
+                        text: "100"
+                    }
+                },
+                {
+                    type: "action",
+                    action: {
+                        type: "message",
+                        label: "1000",
+                        text: "1000"
+                    }
+                },
+            ]
+        }
+    }));
+
+}
+
+function replyQuestion(events_processed, event) {
+    let i = getQuestionIndex();
+    let t = questions[i];
+    setQaIndex(event.source.userId, i);
     events_processed.push(bot.replyMessage(event.replyToken, {
         type: "text",
         text: t,
@@ -170,7 +243,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
         // この処理の対象をイベントタイプがメッセージで、かつ、テキストタイプだった場合に限定。
         if (event.type == "message" && event.message.type == "text") {
             if (isQuestion(event.message.text)) {
-                sendOneQuestion(events_processed, event);
+                replyQuestion(events_processed, event);
             } else if (event.message.text == "こんにちは") {
                 // replyMessage()で返信し、そのプロミスをevents_processedに追加。
                 events_processed.push(bot.replyMessage(event.replyToken, {
@@ -190,7 +263,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                     ]
                 }));
             } else {
-                if (getQaIndex(event.source.userId, false) < 0) {
+                if (getQaIndex(event.source.userId) < 0) {
                     events_processed.push(bot.replyMessage(event.replyToken, {
                         type: "text",
                         text: "「問題出して」とか言ってみて"
@@ -208,7 +281,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                                 }
                             ]
                         }));
-                        sendOneQuestion(events_processed, event);
+                        sendQuestion(events_processed, event);
                     } else {
                         events_processed.push(bot.replyMessage(event.replyToken, {
                             type: "text",
