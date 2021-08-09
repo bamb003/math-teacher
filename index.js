@@ -63,7 +63,7 @@ function getRandomQuestionIndex() {
 
 function getQaIndex(userId) {
     console.log(`getQaIndex: userId=${userId}`);
-    for (user in users) {
+    for (user of users) {
         console.log(`user: ${user}, userId: ${user.userId}`)
         if (user.userId == userId) {
             qaIndex = user.qaIndex;
@@ -76,7 +76,7 @@ function getQaIndex(userId) {
 
 function setQaIndex(userId, index) {
     console.log(`setQaIndex: index= ${index}, userId=${userId}`);
-    for (user in users) {
+    for (user of users) {
         console.log(`user: ${user}`)
         if (user.userId == userId) {
             console.log(`setQaIndex: found: index= ${index}`);
@@ -90,11 +90,13 @@ function setQaIndex(userId, index) {
         continuousCorrect: 0
     }
     console.log(`setQaIndex: create: index= ${index}, userId=${userId}`);
+    console.log(`elem: ${elem}`);
     users.push(elem);
+    console.log(`users: ${users}`);
 }
 
 function getContinuousCorrect(userId) {
-    for (user in users) {
+    for (user of users) {
         if (user.userId == userId) {
             return user.continuousCorrect;
         }
@@ -103,7 +105,7 @@ function getContinuousCorrect(userId) {
 }
 
 function addContinuousCorrect(userId) {
-    for (user in users) {
+    for (user of users) {
         if (user.userId == userId) {
             user.continuousCorrect = user.continuousCorrect + 1;
             return;
@@ -112,7 +114,7 @@ function addContinuousCorrect(userId) {
 }
 
 function setContinuousCorrect(userId, count) {
-    for (user in users) {
+    for (user of users) {
         if (user.userId == userId) {
             user.continuousCorrect = count;
             return;
