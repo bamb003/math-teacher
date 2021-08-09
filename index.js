@@ -80,13 +80,13 @@ function getQaIndex(userId, remove) {
 function setQaIndex(userId, index) {
     for (user in users) {
         if (user.userId == userId) {
-            user.qaIndex = i;
+            user.qaIndex = index;
             return;
         }
     }
     let elem = {
         userId: userId,
-        qaIndex: i
+        qaIndex: index
     }
     users.push(elem);
 }
