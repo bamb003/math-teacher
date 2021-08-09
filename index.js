@@ -19,6 +19,9 @@ server.listen(process.env.PORT || 3000);
 const bot = new line.Client(line_config);
 
 const questions = ["1kmは何m?", "1kgは何g?", "1cmは何mm?", "1mは何cm?", "1cmは何mm?", "1mは何km?"];
+const correctAnswers = ["1000", "1000", "10", "100", "10", "0.001"];
+
+let currentIndex = -1;
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -44,7 +47,21 @@ function isQuestion(text) {
 
 function getQuestion() {
     let rand = getRandomInt(0, questions.length);
+    currentIndex = rand;
     return questions[rand];
+}
+
+function isCorrect(text) {
+    if (currentIndex < 0) {
+        return false;
+    }
+    const correctAnswer = correctAnswers[currentIndex];
+    if (text == correctAnswer) {
+        return true;
+    } else {
+        return false;
+    }
+    currentIndex = -1;
 }
 
 // -----------------------------------------------------------------------------
@@ -138,10 +155,25 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                     ]
                 }));
             } else {
-                events_processed.push(bot.replyMessage(event.replyToken, {
-                    type: "text",
-                    text: "あれだけ言ったのに、まだわからんのかー!!"
-                }));
+                if (isCorrect(event.message.text)) {
+                    events_processed.push(bot.replyMessage(event.replyToken, {
+                        type: "text",
+                        text: "$ 正解です!!",
+                        emojis: [
+                            {
+                                index: 0,
+                                productId: "5ac1bfd5040ab15980c9b435",
+                                emojiId: "068"
+                            }
+                        ]
+                    }));
+                } else {
+                    currentIndex = -1;
+                    events_processed.push(bot.replyMessage(event.replyToken, {
+                        type: "text",
+                        text: "あれだけ言ったのに、まだわからんのかー!!"
+                    }));
+                }
             }
         }
     });
