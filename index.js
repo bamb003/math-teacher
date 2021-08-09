@@ -230,7 +230,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                     if (isCorrect(event.source.userId, event.message.text)) {
                         events_processed.push(bot.replyMessage(event.replyToken, {
                             type: "text",
-                            text: "$ 正解です!!",
+                            text: "$ 正解です! それでは次の問題!!",
                             emojis: [
                                 {
                                     index: 0,
