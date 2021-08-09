@@ -39,6 +39,13 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                     text: "これはこれは"
                 }));
             }
+            if (event.message.text == "もんだいだして") {
+                // replyMessage()で返信し、そのプロミスをevents_processedに追加。
+                events_processed.push(bot.replyMessage(event.replyToken, {
+                    type: "text",
+                    text: "1kmは何m?"
+                }));
+            }
         }
     });
 
