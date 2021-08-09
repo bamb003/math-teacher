@@ -56,12 +56,13 @@ function isQuestion(text) {
     return false;
 }
 
-function getQuestionIndex() {
+function getRandomQuestionIndex() {
     let rand = getRandomInt(0, questions.length);
     return rand;
 }
 
 function getQaIndex(userId) {
+    console.log(`getQaIndex: userId=${userId}`);
     for (user in users) {
         if (user.userId == userId) {
             qaIndex = user.qaIndex;
@@ -200,7 +201,7 @@ function getJsonQuestion(str) {
 
 
 function sendQuestion(events_processed, event) {
-    let i = getQuestionIndex();
+    let i = getRandomQuestionIndex();
     let t = questions[i];
     setQaIndex(event.source.userId, i);
     let j = getJsonQuestion(t);
@@ -208,7 +209,7 @@ function sendQuestion(events_processed, event) {
 }
 
 function replyQuestion(events_processed, event) {
-    let i = getQuestionIndex();
+    let i = getRandomQuestionIndex();
     let t = questions[i];
     setQaIndex(event.source.userId, i);
     let j = getJsonQuestion(t);
