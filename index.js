@@ -266,7 +266,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                             ]
                         }));
                         setTimeout(() => {
-                            let c = getContinuousConnect(event.source.userId);
+                            let c = getContinuousCorrect(event.source.userId);
                             if (c >= 2) {
                                 sendMessage(`${c}問連続正解です! それでは…`, events_processed, event);
                             } else {
