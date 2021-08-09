@@ -69,11 +69,35 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                     quickReply: { // ②
                         items: [
                             {
-                                type: "action", // ③
+                                type: "action",
                                 action: {
                                     type: "message",
-                                    label: "Sushi",
-                                    text: "Sushi"
+                                    label: "0.01",
+                                    text: "0.01"
+                                }
+                            },
+                            {
+                                type: "action",
+                                action: {
+                                    type: "message",
+                                    label: "0.1",
+                                    text: "0.1"
+                                }
+                            },
+                            {
+                                type: "action",
+                                action: {
+                                    type: "message",
+                                    label: "10",
+                                    text: "10"
+                                }
+                            },
+                            {
+                                type: "action",
+                                action: {
+                                    type: "message",
+                                    label: "100",
+                                    text: "100"
                                 }
                             },
                             {
@@ -83,7 +107,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                                     label: "1000",
                                     text: "1000"
                                 }
-                            }
+                            },
                         ]
                     }
                 }));
@@ -96,7 +120,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
             } else if (event.message.text == "あれ") {
                 events_processed.push(bot.replyMessage(event.replyToken, {
                     type: "text",
-                    text: "これはこれは",
+                    text: "s これはこれは",
                     emojis: [
                         {
                             index: 0,
