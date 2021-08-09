@@ -104,14 +104,18 @@ function isCorrect(userId, text) {
     }
 }
 
-function sendQuestion(events_processed, event) {
-    let i = getQuestionIndex();
-    let t = questions[i];
-    setQaIndex(event.source.userId, i);
+function sendMessage(str, events_processed, event) {
     events_processed.push(bot.pushMessage(event.source.userId, {
         type: "text",
-        text: t,
-        quickReply: { // ②
+        text: str
+    }));
+}
+
+function getJsonQuestion(str) {
+    return {
+        type: "text",
+        text: str,
+        quickReply: {
             items: [
                 {
                     type: "action",
@@ -163,70 +167,24 @@ function sendQuestion(events_processed, event) {
                 },
             ]
         }
-    }));
+    };
+}
 
+
+function sendQuestion(events_processed, event) {
+    let i = getQuestionIndex();
+    let t = questions[i];
+    setQaIndex(event.source.userId, i);
+    let j = getJsonQuestion(t);
+    events_processed.push(bot.pushMessage(event.source.userId, j));
 }
 
 function replyQuestion(events_processed, event) {
     let i = getQuestionIndex();
     let t = questions[i];
     setQaIndex(event.source.userId, i);
-    events_processed.push(bot.replyMessage(event.replyToken, {
-        type: "text",
-        text: t,
-        quickReply: { // ②
-            items: [
-                {
-                    type: "action",
-                    action: {
-                        type: "message",
-                        label: "0.001",
-                        text: "0.001"
-                    }
-                },
-                {
-                    type: "action",
-                    action: {
-                        type: "message",
-                        label: "0.01",
-                        text: "0.01"
-                    }
-                },
-                {
-                    type: "action",
-                    action: {
-                        type: "message",
-                        label: "0.1",
-                        text: "0.1"
-                    }
-                },
-                {
-                    type: "action",
-                    action: {
-                        type: "message",
-                        label: "10",
-                        text: "10"
-                    }
-                },
-                {
-                    type: "action",
-                    action: {
-                        type: "message",
-                        label: "100",
-                        text: "100"
-                    }
-                },
-                {
-                    type: "action",
-                    action: {
-                        type: "message",
-                        label: "1000",
-                        text: "1000"
-                    }
-                },
-            ]
-        }
-    }));
+    let j = getJsonQuestion(t);
+    events_processed.push(bot.replyMessage(event.replyToken, j));
 }
 
 // -----------------------------------------------------------------------------
@@ -281,6 +239,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                                 }
                             ]
                         }));
+                        sendMessage("それでは…", events_processed, event);
                         sendQuestion(events_processed, event);
                     } else {
                         events_processed.push(bot.replyMessage(event.replyToken, {
