@@ -225,6 +225,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
         // この処理の対象をイベントタイプがメッセージで、かつ、テキストタイプだった場合に限定。
         if (event.type == "message" && event.message.type == "text") {
             if (isQuestion(event.message.text)) {
+                setContinuousCorrect(event.source.userId, 0);
                 replyQuestion(events_processed, event);
             } else if (event.message.text == "こんにちは") {
                 // replyMessage()で返信し、そのプロミスをevents_processedに追加。
