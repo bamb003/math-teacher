@@ -34,12 +34,15 @@ const correctAnswers = ["1000", "1000", "10", "100", "10", "0.001", "10", "100",
 
 let users = [];
 
+// min <= x < max となる整数xを返す
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
 
+// 引数で渡されたユーザからのtextが、「問題出して」とか「つぎ」とかを含んでいたらtrueを返す(=出題を要求している)
+// trueの場合、出題を行う必要アリ
 function isQuestion(text) {
     if (text.includes("問題")) {
         return true;
@@ -56,10 +59,12 @@ function isQuestion(text) {
     return false;
 }
 
+// 乱数で決めた問題indexを返す
 function getRandomQuestionIndex() {
     let rand = getRandomInt(0, questions.length);
     return rand;
 }
+
 
 function getQaIndex(userId) {
     for (user of users) {
@@ -86,6 +91,7 @@ function setQaIndex(userId, index) {
     users.push(elem);
 }
 
+// 引数userの連続正解数を返す
 function getContinuousCorrect(userId) {
     for (user of users) {
         if (user.userId == userId) {
@@ -95,6 +101,7 @@ function getContinuousCorrect(userId) {
     return -1;
 }
 
+// 引数userの連続正解数を++する
 function addContinuousCorrect(userId) {
     for (user of users) {
         if (user.userId == userId) {
@@ -104,6 +111,7 @@ function addContinuousCorrect(userId) {
     }
 }
 
+// 引数userの連続正解数に引数countをsetする
 function setContinuousCorrect(userId, count) {
     for (user of users) {
         if (user.userId == userId) {
@@ -113,6 +121,7 @@ function setContinuousCorrect(userId, count) {
     }
 }
 
+// 引数userの引数text(回答)が正解の場合trueを返す
 function isCorrect(userId, text) {
     let qaIndex = getQaIndex(userId)
     if (qaIndex < 0) {
@@ -128,6 +137,7 @@ function isCorrect(userId, text) {
     }
 }
 
+// 引数strをメッセージ送信する
 function sendMessage(str, events_processed, event) {
     events_processed.push(bot.pushMessage(event.source.userId, {
         type: "text",
@@ -135,6 +145,7 @@ function sendMessage(str, events_processed, event) {
     }));
 }
 
+// 問題1問を表現するjsonを返す
 function getJsonQuestion(str) {
     return {
         type: "text",
@@ -194,7 +205,7 @@ function getJsonQuestion(str) {
     };
 }
 
-
+// ランダムに選んだ問題をメッセージ送信する(replyではない)
 function sendQuestion(events_processed, event) {
     let i = getRandomQuestionIndex();
     let t = questions[i];
@@ -203,6 +214,7 @@ function sendQuestion(events_processed, event) {
     events_processed.push(bot.pushMessage(event.source.userId, j));
 }
 
+// ランダムに選んだ問題をメッセージ送信する(reply)
 function replyQuestion(events_processed, event) {
     let i = getRandomQuestionIndex();
     let t = questions[i];
