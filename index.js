@@ -13,6 +13,9 @@ const line_config = {
 // -----------------------------------------------------------------------------
 // Webサーバー設定
 server.listen(process.env.PORT || 3000);
+/** @note タイムアウトの設定 */
+server.keepAliveTimeout = 70000;
+server.headersTimeout = 80000;
 
 
 // APIコールのためのクライアントインスタンスを作成
