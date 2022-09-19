@@ -221,6 +221,7 @@ function sendQuestion(events_processed, event) {
 
 // ランダムに選んだ問題をメッセージ送信する(reply)
 function replyQuestion(events_processed, event) {
+    console.log("replyQuestion()");
     let i = getRandomQuestionIndex();
     let t = questions[i];
     setQaIndex(event.source.userId, i);
@@ -315,6 +316,8 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
         }
     });
 
+    console.log("promise start");
+    console.log("events_processed's length: " + events_processed.length);
     // すべてのイベント処理が終了したら何個のイベントが処理されたか出力。
     Promise.all(events_processed).then(
         (response) => {
