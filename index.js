@@ -67,9 +67,13 @@ function getRandomQuestionIndex() {
 
 
 function getQaIndex(userId) {
+    console.log("getQaIndex: userId=" + userId);
+    console.log("users 's len=" + users.length);
     for (user of users) {
+        console.log("getQaIndex: user=" + user);
         if (user.userId == userId) {
             qaIndex = user.qaIndex;
+            console.log("getQaIndex: user found");
             return qaIndex;
         }
     }
@@ -123,6 +127,7 @@ function setContinuousCorrect(userId, count) {
 
 // 引数userの引数text(回答)が正解の場合trueを返す
 function isCorrect(userId, text) {
+    console.log("isCorrect: userId=" + userId);
     let qaIndex = getQaIndex(userId)
     if (qaIndex < 0) {
         return false;
@@ -237,6 +242,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
         // この処理の対象をイベントタイプがメッセージで、かつ、テキストタイプだった場合に限定。
         if (event.type == "message" && event.message.type == "text") {
             if (isQuestion(event.message.text)) {
+                console.log("this is a question");
                 setContinuousCorrect(event.source.userId, 0);
                 replyQuestion(events_processed, event);
             } else if (event.message.text == "こんにちは") {
@@ -264,7 +270,9 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                         text: "「問題出して」とか言ってみて"
                     }));
                 } else {
+                    console.log("server.post:1");
                     if (isCorrect(event.source.userId, event.message.text)) {
+                        console.log("server.post:2");
                         events_processed.push(bot.replyMessage(event.replyToken, {
                             type: "text",
                             text: "$ 正解です!",
@@ -277,6 +285,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                             ]
                         }));
                         setTimeout(() => {
+                            console.log("setTimeout1");
                             let c = getContinuousCorrect(event.source.userId);
                             if (c == 10) {
                                 sendMessage(`10問連続正解です! おめでとう!!! 今日はゲームできるかも(お母さんに聞いてみてね)`, events_processed, event);
@@ -287,9 +296,11 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                                 sendMessage(`やりますね、それでは…`, events_processed, event);
                             }
                             setTimeout(() => {
+                                console.log("setTimeout2");
                                 sendQuestion(events_processed, event);
                             }, 1000);
                         }, 1000);
+                        console.log("server.post:3");
                     } else {
                         events_processed.push(bot.replyMessage(event.replyToken, {
                             type: "text",
@@ -307,4 +318,5 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
             console.log(`${response.length} event(s) processed.`);
         }
     );
+    console.log("server.post end");
 });
