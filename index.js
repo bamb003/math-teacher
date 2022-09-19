@@ -236,7 +236,6 @@ function replyQuestion(events_processed, event) {
 // ルーター設定
 server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
     // 先行してLINE側にステータスコード200でレスポンスする。
-    res.sendStatus(200);
     console.log("server.post 0");
 
     // すべてのイベント処理のプロミスを格納する配列。
@@ -328,6 +327,7 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
             console.log("promise all then");
             console.log(response);
             console.log(`${response.length} event(s) processed.`);
+            res.sendStatus(200);
         }
     ).catch(
         (error) => {
