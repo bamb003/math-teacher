@@ -234,77 +234,83 @@ server.post('/bot/webhook', line.middleware(line_config), async (req, res, next)
     // 先行してLINE側にステータスコード200でレスポンスする。
     console.log("server.post 0");
 
-    // すべてのイベント処理のプロミスを格納する配列。
-    let events_processed = [];
+    try {
 
-    // イベントオブジェクトを順次処理。
-    req.body.events.forEach((event) => {
-        console.log("event: " + event);
-        needWait = false;
-        // この処理の対象をイベントタイプがメッセージで、かつ、テキストタイプだった場合に限定。
-        if (event.type == "message" && event.message.type == "text") {
-            if (isQuestion(event.message.text)) {
-                setContinuousCorrect(event.source.userId, 0);
-                await replyQuestion(event);
-            } else if (event.message.text == "こんにちは") {
-                // replyMessage()で返信し、そのプロミスをevents_processedに追加。
-                await bot.replyMessage(event.replyToken, {
-                    type: "text",
-                    text: "はいこんにちは、今日も勉強がんばりましょう!"
-                });
-            } else if (event.message.text == "あれ") {
-                await bot.replyMessage(event.replyToken, {
-                    type: "text",
-                    text: "$ ok!",
-                    emojis: [
-                        {
-                            index: 0,
-                            productId: "5ac1bfd5040ab15980c9b435",
-                            emojiId: "068"
-                        }
-                    ]
-                });
-            } else {
-                if (getQaIndex(event.source.userId) < 0) {
+        // すべてのイベント処理のプロミスを格納する配列。
+        let events_processed = [];
+
+        // イベントオブジェクトを順次処理。
+        req.body.events.forEach((event) => {
+            console.log("event: " + event);
+            needWait = false;
+            // この処理の対象をイベントタイプがメッセージで、かつ、テキストタイプだった場合に限定。
+            if (event.type == "message" && event.message.type == "text") {
+                if (isQuestion(event.message.text)) {
+                    setContinuousCorrect(event.source.userId, 0);
+                    await replyQuestion(event);
+                } else if (event.message.text == "こんにちは") {
+                    // replyMessage()で返信し、そのプロミスをevents_processedに追加。
                     await bot.replyMessage(event.replyToken, {
                         type: "text",
-                        text: "「問題出して」とか言ってみて"
+                        text: "はいこんにちは、今日も勉強がんばりましょう!"
+                    });
+                } else if (event.message.text == "あれ") {
+                    await bot.replyMessage(event.replyToken, {
+                        type: "text",
+                        text: "$ ok!",
+                        emojis: [
+                            {
+                                index: 0,
+                                productId: "5ac1bfd5040ab15980c9b435",
+                                emojiId: "068"
+                            }
+                        ]
                     });
                 } else {
-                    if (isCorrect(event.source.userId, event.message.text)) {
+                    if (getQaIndex(event.source.userId) < 0) {
                         await bot.replyMessage(event.replyToken, {
                             type: "text",
-                            text: "$ 正解です!",
-                            emojis: [
-                                {
-                                    index: 0,
-                                    productId: "5ac1bfd5040ab15980c9b435",
-                                    emojiId: "068"
-                                }
-                            ]
+                            text: "「問題出して」とか言ってみて"
                         });
-                        sleep(1000);
-                        let c = getContinuousCorrect(event.source.userId);
-                        if (c == 10) {
-                            await sendMessage(`10問連続正解です! おめでとう!!! 今日はゲームできるかも(お母さんに聞いてみてね)`, events_processed, event);
-                            return;
-                        } else if (c >= 2) {
-                            await sendMessage(`${c}問連続正解です! それでは…`, events_processed, event);
-                        } else {
-                            await sendMessage(`やりますね、それでは…`, events_processed, event);
-                        }
-                        sleep(1000);
-                        await sendQuestion(event);
                     } else {
-                        await bot.replyMessage(event.replyToken, {
-                            type: "text",
-                            text: "あれだけ言ったのに、まだわからんのかー!!"
-                        });
+                        if (isCorrect(event.source.userId, event.message.text)) {
+                            await bot.replyMessage(event.replyToken, {
+                                type: "text",
+                                text: "$ 正解です!",
+                                emojis: [
+                                    {
+                                        index: 0,
+                                        productId: "5ac1bfd5040ab15980c9b435",
+                                        emojiId: "068"
+                                    }
+                                ]
+                            });
+                            sleep(1000);
+                            let c = getContinuousCorrect(event.source.userId);
+                            if (c == 10) {
+                                await sendMessage(`10問連続正解です! おめでとう!!! 今日はゲームできるかも(お母さんに聞いてみてね)`, events_processed, event);
+                                return;
+                            } else if (c >= 2) {
+                                await sendMessage(`${c}問連続正解です! それでは…`, events_processed, event);
+                            } else {
+                                await sendMessage(`やりますね、それでは…`, events_processed, event);
+                            }
+                            sleep(1000);
+                            await sendQuestion(event);
+                        } else {
+                            await bot.replyMessage(event.replyToken, {
+                                type: "text",
+                                text: "あれだけ言ったのに、まだわからんのかー!!"
+                            });
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+
+    } catch (e) {
+        next(e);
+    };
 
     // すべてのイベント処理が終了したら何個のイベントが処理されたか出力。
     res.sendStatus(200);    
