@@ -306,7 +306,7 @@ server.post('/bot/webhook', line.middleware(line_config), async (req, res, next)
                     }
                 }
             }
-        });
+        };
 
     } catch (e) {
         next(e);
