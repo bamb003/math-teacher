@@ -236,14 +236,11 @@ server.post('/bot/webhook', line.middleware(line_config), async (req, res, next)
 
     try {
 
-        await sleep(1000);
-        console.log("sleep end");
-
         // すべてのイベント処理のプロミスを格納する配列。
         let events_processed = [];
 
         // イベントオブジェクトを順次処理。
-        req.body.events.forEach((event) => {
+        for (const event of req.body.events) {
             console.log("event: " + event);
             needWait = false;
             // この処理の対象をイベントタイプがメッセージで、かつ、テキストタイプだった場合に限定。
