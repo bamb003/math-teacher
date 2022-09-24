@@ -13,10 +13,6 @@ const line_config = {
 // -----------------------------------------------------------------------------
 // Webサーバー設定
 server.listen(process.env.PORT || 3000);
-/** @note タイムアウトの設定 */
-server.keepAliveTimeout = 70000;
-server.headersTimeout = 80000;
-
 
 // APIコールのためのクライアントインスタンスを作成
 const bot = new line.Client(line_config);
@@ -68,15 +64,10 @@ function getRandomQuestionIndex() {
     return rand;
 }
 
-
 function getQaIndex(userId) {
-    console.log("getQaIndex: userId=" + userId);
-    console.log("users 's len=" + users.length);
     for (user of users) {
-        console.log("getQaIndex: user=" + user);
         if (user.userId == userId) {
             qaIndex = user.qaIndex;
-            console.log("getQaIndex: user found");
             return qaIndex;
         }
     }
@@ -130,7 +121,6 @@ function setContinuousCorrect(userId, count) {
 
 // 引数userの引数text(回答)が正解の場合trueを返す
 function isCorrect(userId, text) {
-    console.log("isCorrect: userId=" + userId);
     let qaIndex = getQaIndex(userId)
     if (qaIndex < 0) {
         return false;
@@ -146,11 +136,12 @@ function isCorrect(userId, text) {
 }
 
 // 引数strをメッセージ送信する
+// Promiseを返す
 function sendMessage(str, events_processed, event) {
-    events_processed.push(bot.pushMessage(event.source.userId, {
+    return bot.pushMessage(event.source.userId, {
         type: "text",
         text: str
-    }));
+    });
 }
 
 // 問題1問を表現するjsonを返す
@@ -214,27 +205,32 @@ function getJsonQuestion(str) {
 }
 
 // ランダムに選んだ問題をメッセージ送信する(replyではない)
-function sendQuestion(events_processed, event) {
+// Promseを返す
+function sendQuestion(event) {
     let i = getRandomQuestionIndex();
     let t = questions[i];
     setQaIndex(event.source.userId, i);
     let j = getJsonQuestion(t);
-    events_processed.push(bot.pushMessage(event.source.userId, j));
+    return bot.pushMessage(event.source.userId, j);
 }
 
 // ランダムに選んだ問題をメッセージ送信する(reply)
-function replyQuestion(events_processed, event) {
-    console.log("replyQuestion()");
+// Promseを返す
+function replyQuestion(event) {
     let i = getRandomQuestionIndex();
     let t = questions[i];
     setQaIndex(event.source.userId, i);
     let j = getJsonQuestion(t);
-    events_processed.push(bot.replyMessage(event.replyToken, j));
+    return bot.replyMessage(event.replyToken, j);
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // -----------------------------------------------------------------------------
 // ルーター設定
-server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
+server.post('/bot/webhook', line.middleware(line_config), async (req, res, next) => {
     // 先行してLINE側にステータスコード200でレスポンスする。
     console.log("server.post 0");
 
@@ -244,21 +240,20 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
     // イベントオブジェクトを順次処理。
     req.body.events.forEach((event) => {
         console.log("event: " + event);
+        needWait = false;
         // この処理の対象をイベントタイプがメッセージで、かつ、テキストタイプだった場合に限定。
         if (event.type == "message" && event.message.type == "text") {
-            console.log("userId: " + event.source.userId);
             if (isQuestion(event.message.text)) {
-                console.log("this is a question");
                 setContinuousCorrect(event.source.userId, 0);
-                replyQuestion(events_processed, event);
+                await replyQuestion(event);
             } else if (event.message.text == "こんにちは") {
                 // replyMessage()で返信し、そのプロミスをevents_processedに追加。
-                events_processed.push(bot.replyMessage(event.replyToken, {
+                await bot.replyMessage(event.replyToken, {
                     type: "text",
                     text: "はいこんにちは、今日も勉強がんばりましょう!"
-                }));
+                });
             } else if (event.message.text == "あれ") {
-                events_processed.push(bot.replyMessage(event.replyToken, {
+                await bot.replyMessage(event.replyToken, {
                     type: "text",
                     text: "$ ok!",
                     emojis: [
@@ -268,19 +263,16 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                             emojiId: "068"
                         }
                     ]
-                }));
+                });
             } else {
                 if (getQaIndex(event.source.userId) < 0) {
-                    console.log("mondai dashite");
-                    events_processed.push(bot.replyMessage(event.replyToken, {
+                    await bot.replyMessage(event.replyToken, {
                         type: "text",
                         text: "「問題出して」とか言ってみて"
-                    }));
+                    });
                 } else {
-                    console.log("server.post:1");
                     if (isCorrect(event.source.userId, event.message.text)) {
-                        console.log("server.post:2");
-                        events_processed.push(bot.replyMessage(event.replyToken, {
+                        await bot.replyMessage(event.replyToken, {
                             type: "text",
                             text: "$ 正解です!",
                             emojis: [
@@ -290,50 +282,31 @@ server.post('/bot/webhook', line.middleware(line_config), (req, res, next) => {
                                     emojiId: "068"
                                 }
                             ]
-                        }));
-                        setTimeout(() => {
-                            console.log("setTimeout1");
-                            let c = getContinuousCorrect(event.source.userId);
-                            if (c == 10) {
-                                sendMessage(`10問連続正解です! おめでとう!!! 今日はゲームできるかも(お母さんに聞いてみてね)`, events_processed, event);
-                                return;
-                            } else if (c >= 2) {
-                                sendMessage(`${c}問連続正解です! それでは…`, events_processed, event);
-                            } else {
-                                sendMessage(`やりますね、それでは…`, events_processed, event);
-                            }
-                            setTimeout(() => {
-                                console.log("setTimeout2");
-                                sendQuestion(events_processed, event);
-                            }, 1000);
-                        }, 1000);
-                        console.log("server.post:3");
+                        });
+                        sleep(1000);
+                        let c = getContinuousCorrect(event.source.userId);
+                        if (c == 10) {
+                            await sendMessage(`10問連続正解です! おめでとう!!! 今日はゲームできるかも(お母さんに聞いてみてね)`, events_processed, event);
+                            return;
+                        } else if (c >= 2) {
+                            await sendMessage(`${c}問連続正解です! それでは…`, events_processed, event);
+                        } else {
+                            await sendMessage(`やりますね、それでは…`, events_processed, event);
+                        }
+                        sleep(1000);
+                        await sendQuestion(event);
                     } else {
-                        events_processed.push(bot.replyMessage(event.replyToken, {
+                        await bot.replyMessage(event.replyToken, {
                             type: "text",
                             text: "あれだけ言ったのに、まだわからんのかー!!"
-                        }));
+                        });
                     }
                 }
             }
         }
     });
 
-    console.log("promise start");
-    console.log("events_proc length: " + events_processed.length);
     // すべてのイベント処理が終了したら何個のイベントが処理されたか出力。
-    Promise.all(events_processed).then(
-        (response) => {
-            console.log("promise all then");
-            console.log(response);
-            console.log(`${response.length} event(s) processed.`);
-            res.sendStatus(200);
-        }
-    ).catch(
-        (error) => {
-            console.log("promise all catch");
-            console.log(error);
-        }
-    );
+    res.sendStatus(200);    
     console.log("server.post end");
 });
