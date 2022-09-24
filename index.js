@@ -224,7 +224,7 @@ function replyQuestion(event) {
     return bot.replyMessage(event.replyToken, j);
 }
 
-function sleep(ms) {
+function mySleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -285,7 +285,7 @@ server.post('/bot/webhook', line.middleware(line_config), async (req, res, next)
                                     }
                                 ]
                             });
-                            sleep(1000);
+                            await mySleep(1000);
                             let c = getContinuousCorrect(event.source.userId);
                             if (c == 10) {
                                 await sendMessage(`10問連続正解です! おめでとう!!! 今日はゲームできるかも(お母さんに聞いてみてね)`, events_processed, event);
@@ -295,7 +295,7 @@ server.post('/bot/webhook', line.middleware(line_config), async (req, res, next)
                             } else {
                                 await sendMessage(`やりますね、それでは…`, events_processed, event);
                             }
-                            sleep(1000);
+                            await mySleep(1000);
                             await sendQuestion(event);
                         } else {
                             await bot.replyMessage(event.replyToken, {
